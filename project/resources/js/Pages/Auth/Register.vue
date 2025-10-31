@@ -11,6 +11,8 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    role: '',
+    role_code: '',
 });
 
 const submit = () => {
@@ -55,6 +57,42 @@ const submit = () => {
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
+
+            <div class="mt-4">
+                <InputLabel for="role" value="Sign up as" />
+
+                <select
+                    id="role"
+                    name="role"
+                    v-model="form.role"
+                    @change="form.role_code"
+                    required
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                >
+
+                    <option value="" disabled> Select role </option>
+                    <option value="user"> User </option>
+                    <option value="admin"> Admin </option>
+                </select>
+
+                <InputError class="mt-2" :message="form.errors.role" />
+            </div>
+
+            <div v-if="form.role === 'admin'" class="mt-4">
+                <InputLabel for="role_code" value="Admin Code"/>
+
+                <TextInput
+                    id="role_code"
+                    name="role_code"
+                    type="text"
+                    v-model="form.role_code"
+                    class="mt-1 block w-full"
+                    required
+                />
+
+                <InputError class="mt-2" :message="form.errors.role_code" />
+            </div>
+
 
             <div class="mt-4">
                 <InputLabel for="password" value="Password" />

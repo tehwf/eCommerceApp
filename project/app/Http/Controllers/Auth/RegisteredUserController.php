@@ -34,12 +34,21 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required'],
+            'role_code' => ['nullable', 'string'],
         ]);
+
+        if ($request->role === 'admin' && $request->role_code !== env('ADMIN_CODE')) {
+            throw ValidationException::withMessages([
+                'role_code' => ['The admin code you entered is incorrect.'],
+            ]);
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         event(new Registered($user));
