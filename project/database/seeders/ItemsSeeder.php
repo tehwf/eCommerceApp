@@ -16,7 +16,7 @@ class ItemsSeeder extends Seeder
         //
         $items =[
             [
-                'name' => 'Claasic bag',
+                'name' => 'Classic bag',
                 'price' => 90.00,
                 'image_url' => '/images/bag.jpg',
                 'description' => 'Classic bag, classic but does not lose style.',
