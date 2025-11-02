@@ -23,16 +23,21 @@ const addToCart = () => {
 
     form.quantity = quantity.value;
     form.post(route('cart.add'), {
-        onSuccess: () => alert('Item added to cart successfully!'),
-        onError: () => alert('Failed to add item to cart.'),
-    })
+        preserveScroll: true,
+        onSuccess: () => {
+            alert('Item added to cart successfully!');
+        },
+        onError: () => {
+            alert('Failed to add item to cart.');
+        },
+    });
 }
 
 
 </script>
 
 <template>
-    <Head title="props.item.name" />
+    <Head title="View product" />
 
     <AuthenticatedLayout>
         <template #header>

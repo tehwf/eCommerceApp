@@ -3,37 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Cart extends Model
 {
     //
-    protected $fillable = ['user_id','product_id','type','name','price','quantity','image_url'];
-    
-    public static function updateOrCreateFromSessionItem($userId, $key, $item)
-    {
-        [$type, $productId] = explode('_', $key);
+    use HasFactory;
 
-        self::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'product_id' => $productId,
-            ],
-            [
-                'type' => $item['type'],
-                'name' => $item['name'],
-                'price' => $item['price'],
-                'quantity' => $item['quantity'],
-                'image_url' => $item['image_url'],
-            ]
-        );
-    }
+    protected $fillable = [
+        'user_id',
+        'item_id',
+        'quantity',
+    ];
 
-    public function user() 
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function item() 
+    public function item()
     {
         return $this->belongsTo(Item::class);
     }

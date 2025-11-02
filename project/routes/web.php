@@ -16,14 +16,12 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/products', [ProductController::class, 'index'])->name('products');
-    Route::get('/products/{id}', [ProductController::class, 'show'])->name('catalogue.show');
-});
+    Route::get('/products/{item}', [ProductController::class, 'show'])->name('catalogue.show');
 
-Route::middleware(['auth'])-> group(function() {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::patch('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
 });
 
 Route::middleware('auth')->group(function () {

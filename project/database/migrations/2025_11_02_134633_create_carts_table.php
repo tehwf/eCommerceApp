@@ -14,13 +14,8 @@ return new class extends Migration
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->json('cart_items'); 
-            $table->decimal('total_price', 10, 2);
-            $table->string('payment_details'); 
-            $table->string('order_status')->default('pending'); 
-            $table->string('tracking_number')->unique();
-            $table->string('shipping_address');
-            $table->date('shipping_estimated_day');
+            $table->foreignId('item_id')->constrained()->onDelete('cascade');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

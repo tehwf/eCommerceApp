@@ -5,71 +5,69 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Item;
+use Inertia\Inertia;
 
 class CartController extends Controller
 {
     //
-    public function index(Request $request) 
-    {
-        $carts = $request->user()->carts()->with('item')->get();
-
-        return Inertia('Cart/Index', ['carts' => $carts]);
-    }
-
-    public function add(Request $request) 
+    public function add(Request $request)
     {
         $validated = $request->validate([
-            'item_id' => 'required|exists:items, id',
+            'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $item = Item::findOrFail($validated['item_id']);
+        $user = $request->user();
 
-        if ($validated['quantity'] > $item->quantity) {
-            return back()->withErrors(['quantity' => 'Not enough stock available.']);
-        }
-
-        $existingCart = $request->user()->carts()
-            ->where('item_id', $item->id)
+        $cartItem = Cart::where('user_id', $user->id)
+            ->where('item_id', $validated['item_id'])
             ->first();
 
-        if ($existingCart) {
-            $newQuantity = $existingCart -> quantity + $validated['quantity'];
-
-            if ($newQuantity > $item->quantity) {
-                return back()->withErrors(['quantity' => 'Not enough stock available.']);
-            } 
-            $existingCart->update(['quantity' => $newQuantity]);
+        if ($cartItem) {
+            $cartItem->update([
+                'quantity' => $cartItem->quantity + $validated['quantity']
+            ]);
         } else {
-            $request -> user()->carts()->create($validated);
+            Cart::create([
+                'user_id' => $user->id,
+                'item_id' => $validated['item_id'],
+                'quantity' => $validated['quantity'],
+            ]);
         }
 
-        return back()->with('success', 'Item added to cart successfully.');
+        return redirect()->back()->with('success', 'Item added to cart');
     }
 
-    public function update(Request $request, $id) 
+    public function index(Request $request)
     {
-        $this->authorize('update', $cart);
+        $cartItems = Cart::with('item')
+            ->where('user_id', $request->user()->id)
+            ->get();
+
+        return Inertia::render('Cart', [
+            'cartItems' => $cartItems,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $cartItem = Cart::findOrFail($id);
 
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
 
-        if ($validated['quantity'] > $cart->item->quantity) {
-            return back()->withErrors(['quantity' => 'Not enough stock available.']);
-        }
+        $cartItem->quantity = $validated['quantity'];
+        $cartItem->save();
 
-        $cart->update($validated);
-
-        return back()->with('success', 'Cart updated successfully.');
+        return redirect()->route('cart.index');
     }
 
-    public function remove(Cart $cart)
+    public function destroy(Cart $cart)
     {
-        $this->authorize('delete', $cart);
-
         $cart->delete();
 
-        return back()->with('sucess', 'Item removed from cart successfully.');
+        return redirect()->back()->with('success', 'Item removed from cart');
     }
+
 }
