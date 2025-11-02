@@ -118,7 +118,13 @@ const removeItem = (cartId) => {
 
             <div class="flex gap-3 w-full md:w-auto justify-center md:justify-end">
               <Link :href="route('products')" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Continue Shopping</Link>
-              <button class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Proceed to Checkout</button>
+              <Link
+                :href="route('checkout')"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md"
+              >
+                Proceed to Checkout
+              </Link>
+
             </div>
           </div>
         </div>

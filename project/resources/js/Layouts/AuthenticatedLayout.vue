@@ -42,6 +42,13 @@ const showingNavigationDropdown = ref(false);
                                     Cart 
                                 </NavLink>
 
+                                <NavLink
+                                    :href="route('orders.history')"
+                                    :active="route().current('orders.history')"
+                                >
+                                    Order History 
+                                </NavLink>
+
                             </div>
                         </div>
 
