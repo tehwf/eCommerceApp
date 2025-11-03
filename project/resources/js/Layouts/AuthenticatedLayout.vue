@@ -5,9 +5,12 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+const page = usePage()
+const cartCount = page.props.cartCount || 0
+
 </script>
 
 <template>
@@ -36,11 +39,22 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('cart.index')"
-                                    :active="route().current('cart.index')"
-                                >
-                                    Cart 
-                                </NavLink>
+  :href="route('cart.index')"
+  :active="route().current('cart.index')"
+  class="relative inline-flex items-center space-x-1"
+>
+  <span class="text-gray-700 font-medium">Cart</span>
+
+  <!-- Red number badge (only shows when cartCount > 0) -->
+  <span
+    v-if="cartCount > 0"
+    class="bg-red-600 text-white text-[11px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] min-h-[18px] flex items-center justify-center leading-none -translate-y-1"
+  >
+    {{ cartCount }}
+  </span>
+</NavLink>
+
+
 
                                 <NavLink
                                     :href="route('orders.history')"
