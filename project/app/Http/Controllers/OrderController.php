@@ -69,13 +69,27 @@ class OrderController extends Controller
 
     public function orderHistory()
     {
-        $orders = Order::with('items.item')
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->get();
+       $orders = Order::where('user_id', auth()->id())
+        ->with('items')
+        ->orderBy('created_at', 'asc') 
+        ->get();
 
         return Inertia::render('OrderHistory', [
             'orders' => $orders
         ]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:Pending,Processing,Completed,Cancelled',
+        ]);
+
+        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        $order->status = $request->status;
+        $order->save();
+
+        return back()->with('success', 'Order status updated successfully.');
+    }
+
 }

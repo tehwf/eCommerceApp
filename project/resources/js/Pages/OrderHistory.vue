@@ -1,10 +1,22 @@
 <script setup>
-import { Head } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head, useForm } from '@inertiajs/vue3'
 
 const props = defineProps({
-  orders: Array
+  orders: Array,
 })
+
+const form = useForm({
+  status: '',
+})
+
+const updateStatus = (order) => {
+  form.status = order.status
+  form.patch(route('orders.updateStatus', order.id), {
+    preserveScroll: true,
+    onSuccess: () => alert('Status updated successfully!'),
+  })
+}
 </script>
 
 <template>
@@ -12,44 +24,63 @@ const props = defineProps({
 
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="text-xl font-semibold text-gray-800">My Orders</h2>
+      <h2 class="text-xl font-semibold text-gray-800">Order History</h2>
     </template>
 
-    <div class="max-w-5xl mx-auto bg-white p-6 shadow mt-6 rounded-lg">
+    <div class="py-12 max-w-5xl mx-auto bg-white shadow rounded-lg p-6">
       <div v-if="orders.length">
-        <div v-for="order in orders" :key="order.id" class="border-b pb-4 mb-4">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold">Order #{{ order.id }}</h3>
-            <span
-              class="px-2 py-1 rounded text-sm"
-              :class="{
-                'bg-yellow-100 text-yellow-700': order.status === 'Pending',
-                'bg-blue-100 text-blue-700': order.status === 'Shipped',
-                'bg-green-100 text-green-700': order.status === 'Completed'
-              }"
-            >
-              {{ order.status }}
-            </span>
-          </div>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b bg-gray-100">
+              <th class="p-3">Order ID</th>
+              <th class="p-3">Items</th>
+              <th class="p-3">Total</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in orders" :key="order.id" class="border-b hover:bg-gray-50">
+              <td class="p-3">{{ order.id }}</td>
 
-          <p class="text-gray-700">Shipping Address: {{ order.shipping_address }}</p>
-          <p class="text-gray-700">Card No: {{ order.card_number }}</p>
-          <p class="text-gray-800 font-semibold">
-            Total: RM{{ Number(order.total_price).toFixed(2) }}
-          </p>
+              <td class="p-3">
+                <ul>
+                  <li v-for="item in order.items" :key="item.id">
+                    {{ item.name }} (x{{ item.quantity }})
+                  </li>
+                </ul>
+              </td>
 
+              <td class="p-3">RM {{ parseFloat(order.total_price).toFixed(2) }}</td>
 
-          <h4 class="mt-3 font-semibold">Items:</h4>
-          <ul class="list-disc pl-5">
-            <li v-for="oi in order.items" :key="oi.id">
-              {{ oi.item.name }} (x{{ oi.quantity }}) - RM {{ (oi.price * oi.quantity).toFixed(2) }}
-            </li>
-          </ul>
-        </div>
+              <td class="p-3">
+                <select
+                  v-model="order.status"
+                  @change="updateStatus(order)"
+                  :class="[
+                    'rounded px-3 py-1 w-40 text-sm border transition',
+                    order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                    order.status === 'Processing' ? 'bg-blue-100 text-blue-800 border-blue-300' :
+                    order.status === 'Completed' ? 'bg-green-100 text-green-800 border-green-300' :
+                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800 border-red-300' :
+                    'bg-gray-100 text-gray-800 border-gray-300'
+                  ]"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </td>
+
+              <td class="p-3">{{ new Date(order.created_at).toLocaleString() }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div v-else class="text-center text-gray-600 mt-10">
-        You haven’t placed any orders yet.
+      <div v-else class="text-center text-gray-600">
+        No orders yet.
       </div>
     </div>
   </AuthenticatedLayout>
